@@ -88,18 +88,26 @@
         })
         .then(csvText => {
           Papa.parse(csvText, {
-            header: false,
+            header: true,
+            skipEmptyLines: true,
             complete: function (results) {
               const data = results.data;
-              let html = '<table>';
-              data.forEach((row, index) => {
-                html += '<tr>' + row.map(cell => {
-                  const safe = String(cell).replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                  return index === 0
-                    ? `<th>${safe}</th>`
-                    : `<td>${safe}</td>`;
-                }).join('') + '</tr>';
+
+              // Define custom column headers
+              const headers = ['Transaction Date', 'Reference', 'Description', 'Money in', 'Money out', 'Balance'];
+              let html = '<table><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+
+              data.forEach(row => {
+                html += `<tr>
+                  <td>${row["Transaction date"] || ''}</td>
+                  <td>${row["Transaction reference"] || ''}</td>
+                  <td>${row["Description"] || ''}</td>
+                  <td>${row["Credit Amount"] || ''}</td>
+                  <td>${row["Debit Amount"] || ''}</td>
+                  <td>${row["Balance"] || ''}</td>
+                </tr>`;
               });
+
               html += '</table>';
               document.getElementById('tableContainer').innerHTML = html;
             }
@@ -110,6 +118,7 @@
         });
     }
   </script>
+
 </body>
 
 </html>
